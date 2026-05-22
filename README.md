@@ -1,7 +1,7 @@
 # Desafio na Cozinha - Sistema Jacquin
 
 **Disciplina:** Algoritmos e Estruturas de Dados II
-**Equipa:** Gabriel Schuch e Lucas Stein
+**Equipe:** Gabriel Schuch e Lucas Stein
 
 ## Sobre o Projeto
 
