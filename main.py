@@ -25,9 +25,9 @@ def main():
         opcao = menu_principal()
 
         if opcao == "1":
-            termo = input("Digite o prefixo do nome da receita: ")
-            resultados = book.search_by_prefix(termo)
-            print(f"Receitas encontradas: {[r.name for r in resultados]}")
+            prefix = input("Digite o prefixo do nome da receita: ")
+            results = book.search_by_prefix(prefix)
+            print(f"Receitas encontradas: {[r.name for r in results]}")
 
         elif opcao == "2":
             # Aqui chamará o seu módulo de investigação
