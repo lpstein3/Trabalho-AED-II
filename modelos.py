@@ -4,10 +4,16 @@ class Recipe():
         self.name = name
         self.category = category
         self.ingredients = ingredients
-        self.cost = cost  # Sera o peso da mochila
-        self.rating = rating  # sera o valor da mochila
-
+        self.cost = cost
+        self.rating = rating
         self.ratio_rating_cost = rating / cost if cost > 0 else 0
 
     def __repr__(self):
-        return f"{self.Name} | Custo: R${self.custo:.2f} | Avaliação: {self.rating} | Razão: {self.ratio_rating_cost:.2f}"
+        return (
+            f"\n Receita: {self.name}\n"
+            f" ID: {self.id}\n"
+            f" Categoria: {self.category}\n"
+            f" Custo: R${self.cost:.2f}\n"
+            f" Avaliação: {self.rating}\n"
+            f" Razão Avaliação/Custo: {self.ratio_rating_cost:.2f}\n"
+        )

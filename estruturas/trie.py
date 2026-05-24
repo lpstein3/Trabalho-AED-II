@@ -10,6 +10,7 @@ class TrieTree:
         self.root = TrieNode()
 
     def insert(self, word: str, recipe_id):
+        """Insere na trie"""
         word = word.lower().strip()
         current = self.root
 
@@ -23,6 +24,7 @@ class TrieTree:
             current.recipes.append(recipe_id)
 
     def prefix_search(self, prefix: str):
+        """Faz a busca por prefixo"""
         prefix = prefix.lower().strip()
         current = self.root
 
@@ -33,6 +35,7 @@ class TrieTree:
         return self._recover_recipes(current)
 
     def _recover_recipes(self, node: TrieNode):
+        """Funcao interna para a recuperacao da string da receita"""
         result = []
 
         if node.end_of_word:
