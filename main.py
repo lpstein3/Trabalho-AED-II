@@ -1,77 +1,49 @@
-import json
-from random import randint
 from pathlib import Path
-from modelos import Receita
+from modulos.livro_receitas import RecipeBook
 
 ROOT_DIR = Path(__file__).resolve().parent
 
 DATASET_PATH = ROOT_DIR / "dataset" / "recipes_raw_nosource_epi.json"
 
 
-def carregar_dados(limite=100):
-    receitas = []
-    try:
-        with open(DATASET_PATH, 'r', encoding='utf-8')as file:
-            dados = json.load(file)
-
-            for key, info in dados.items():
-                if not isinstance(info, dict) or 'title' not in info or 'ingredients' not in info:
-                    continue
-
-                nome = info.get('title', 'Sem nome').strip()
-                ingredientes = info.get('ingredients', [])
-
-                custo = len(ingredientes) * 5.0
-
-                avaliacao = randint(40, 100)
-
-                if custo <= 0:
-                    continue
-
-                receita = Receita(id=key, nome=nome, categoria="Geral",
-                                  ingredientes=ingredientes, custo=custo, avaliacao=avaliacao)
-
-                receitas.append(receita)
-
-                if len(receitas) >= limite:
-                    break
-        print(
-            f"[Sucesso] {len(receitas)} receitas carregadas e adaptadas do RecipeBox.")
-
-    except FileNotFoundError:
-        print(f"[Erro] O arquivo {DATASET_PATH} não foi encontrado.")
-
-    return receitas
+def menu_principal():
+    print("\n--- 👨‍🍳 DESAFIO NA COZINHA: SISTEMA JACQUIN ---")
+    print("1. Consultar Receitas (Busca Rápida)")
+    print("2. Investigar Sabotagem (Auditoria)")
+    print("3. Modo Chef (Otimização de Menu - Guloso)")
+    print("0. Sair")
+    return input("Escolha uma opção: ")
 
 
 def main():
-    print("=== DESAFIO NA COZINHA - SISTEMA JACQUIN ===")
-    receitas = carregar_dados()
+    book = RecipeBook()
 
+    book.carregar_json(DATASET_PATH)
+
+    # 3. Loop do Menu
     while True:
-        print("\nMenu Principal:")
-        print("1. Buscar Receitas (Árvore Trie - A fazer)")
-        print("2. Investigar Sabotagem (Tabela Hash - A fazer)")
-        print("3. Modo Chef / Desafio do Orçamento (Algoritmo Guloso)")
-        print("0. Sair")
+        opcao = menu_principal()
 
-        opcao = input("Escolha uma opção: ")
+        if opcao == "1":
+            termo = input("Digite o prefixo do nome da receita: ")
+            resultados = book.search_by_prefix(termo)
+            print(f"Receitas encontradas: {[r.name for r in resultados]}")
 
-        if opcao == '1':
-            print("Módulo de busca ainda não implementado.")
-            for i in receitas:
-                print(i)
-        elif opcao == '2':
-            print("Módulo de investigação ainda não implementado.")
-        elif opcao == '3':
-            print("\n--- Iniciando o Desafio do Orçamento (Mochila) ---")
-            # Aqui chamaremos a função da sua recuperação!
-            print("Em breve...")
-        elif opcao == '0':
-            print("Au revoir!")
+        elif opcao == "2":
+            # Aqui chamará o seu módulo de investigação
+            print("Funcionalidade de investigação em construção...")
+
+        elif opcao == "3":
+            # Aqui chamará o seu módulo de recuperação da P1
+            orcamento = float(input("Defina o orçamento para o menu: "))
+            # executar_desafio_guloso(livro, orcamento)
+            print(f"Executando otimização com orçamento R${orcamento}...")
+
+        elif opcao == "0":
+            print("Au revoir! O Chef agradece a dedicação.")
             break
         else:
-            print("Opção inválida. Tente novamente.")
+            print("Opção inválida, tente novamente.")
 
 
 if __name__ == "__main__":
