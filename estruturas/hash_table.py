@@ -13,12 +13,12 @@ class HashTable:
         self.limit_load_factor = 0.75
 
     def _hash_function(self, key):
-        """Função hash, ela pega a soma de todos os caracteres e faz o mod com o tamanho da hash"""
+        # soma dos valores ASCII de cada caractere, depois módulo pelo tamanho atual
         ascii_sum = sum(ord(char) for char in str(key))
         return ascii_sum % self.capacity
 
     def _rehash(self):
-        """Funcao de rehash, utilizada quando o fator de carga passar 0.75"""
+        # dobra a capacidade e reinserir tudo quando o fator de carga passa de 0.75
         old_table = self.table
         self.capacity *= 2
         self.table = [None] * self.capacity
@@ -26,12 +26,11 @@ class HashTable:
         for node in old_table:
             current = node
             while current is not None:
-                self._insert_no_rehash(
-                    current.key, current.value)  # <-- novo método
+                self._insert_no_rehash(current.key, current.value)
                 current = current.next
 
     def _insert_no_rehash(self, key, value):
-        """Insert sem verificar load factor — usado internamente no rehash."""
+        # versão interna do insert, chamada durante o rehash para evitar loop infinito
         index = self._hash_function(key)
         new_node = HashNode(key, value)
 
@@ -53,7 +52,6 @@ class HashTable:
         self.size += 1
 
     def insert(self, key, value):
-        """Insere na hash e calcula o fator de carga e se precisar chama o rehash"""
         index = self._hash_function(key)
         new_node = HashNode(key, value)
 
@@ -76,7 +74,6 @@ class HashTable:
             self._rehash()
 
     def search(self, key):
-        """Faz a busca na hash"""
         index = self._hash_function(key)
         current = self.table[index]
 

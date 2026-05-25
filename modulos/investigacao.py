@@ -1,11 +1,8 @@
 import hashlib
 
 
-# ==================================================
-# GERAR ASSINATURA
-# ==================================================
 def generate_signature(recipe):
-    """Gera assinatura SHA256 da receita."""
+    """Gera uma assinatura SHA256 baseada no conteúdo da receita."""
     content = (
         recipe.name.lower().strip()
         + "".join(sorted(i.lower() for i in recipe.ingredients))
@@ -18,26 +15,16 @@ def generate_signature(recipe):
 class Investigation:
     def __init__(self, recipe_book):
         self.book = recipe_book
-        # Assinaturas salvas no momento da inserção: {recipe_id: signature}
         self._original_signatures = {}
         self._snapshot()
 
-    # ==================================================
-    # SNAPSHOT INICIAL
-    # ==================================================
     def _snapshot(self):
-        """Salva assinatura original de todas as receitas carregadas."""
+        """Registra a assinatura de cada receita no momento do carregamento."""
         for recipe in self.book.all_recipes():
             self._original_signatures[recipe.id] = generate_signature(recipe)
 
-    # ==================================================
-    # 1. VERIFICAR ALTERAÇÕES
-    # ==================================================
     def check_alterations(self):
-        """
-        Compara assinatura atual com a original.
-        Detecta receitas que foram modificadas após a inserção.
-        """
+        """Compara a assinatura atual de cada receita com a registrada no snapshot."""
         altered = []
 
         for recipe in self.book.all_recipes():
@@ -47,39 +34,32 @@ class Investigation:
                 altered.append({
                     "id": recipe.id,
                     "name": recipe.name,
-                    "problem": "Sem assinatura original — inserida após snapshot."
+                    "problem": "Sem assinatura original — inserida após o snapshot."
                 })
                 continue
 
-            current_sig = generate_signature(recipe)
-
-            if current_sig != original_sig:
+            if generate_signature(recipe) != original_sig:
                 altered.append({
                     "id": recipe.id,
                     "name": recipe.name,
-                    "problem": "Receita alterada desde a inserção."
+                    "problem": "Receita foi modificada após a inserção."
                 })
 
         return altered
 
-    # ==================================================
-    # 2. VERIFICAR DUPLICATAS
-    # ==================================================
     def check_duplicates(self):
-        """
-        Detecta receitas com conteúdo idêntico (mesma assinatura SHA256).
-        """
-        signatures = {}
+        """Detecta receitas com conteúdo idêntico pela assinatura SHA256."""
+        seen = {}
         duplicates = []
 
         for recipe in self.book.all_recipes():
             sig = generate_signature(recipe)
 
-            if sig not in signatures:
-                signatures[sig] = recipe
+            if sig not in seen:
+                seen[sig] = recipe
             else:
                 duplicates.append({
-                    "id_a": signatures[sig].id,
+                    "id_a": seen[sig].id,
                     "id_b": recipe.id,
                     "name": recipe.name,
                     "problem": "Conteúdo idêntico."
@@ -87,24 +67,18 @@ class Investigation:
 
         return duplicates
 
-    # ==================================================
-    # 3. DETECTAR CONFLITOS ENTRE VERSÕES
-    # ==================================================
     def check_conflicts(self):
-        """
-        Detecta receitas com mesmo nome mas ingredientes diferentes
-        — possíveis versões conflitantes.
-        """
+        """Detecta receitas com o mesmo nome mas ingredientes diferentes."""
         by_name = {}
         conflicts = []
 
         for recipe in self.book.all_recipes():
-            name_key = recipe.name.lower().strip()
+            key = recipe.name.lower().strip()
 
-            if name_key not in by_name:
-                by_name[name_key] = recipe
+            if key not in by_name:
+                by_name[key] = recipe
             else:
-                other = by_name[name_key]
+                other = by_name[key]
                 if sorted(recipe.ingredients) != sorted(other.ingredients):
                     conflicts.append({
                         "id_a": other.id,
@@ -115,16 +89,10 @@ class Investigation:
 
         return conflicts
 
-    # ==================================================
-    # 4. VALIDAR INTEGRIDADE DOS CAMPOS
-    # ==================================================
     def check_integrity(self):
         """
         Valida campos obrigatórios de cada receita:
-        - Nome não vazio
-        - Pelo menos 1 ingrediente
-        - Custo positivo
-        - Rating entre 0 e 100
+        nome não vazio, pelo menos 1 ingrediente, custo positivo, rating entre 0 e 100.
         """
         invalid = []
 
@@ -152,11 +120,7 @@ class Investigation:
 
         return invalid
 
-    # ==================================================
-    # 5. RELATÓRIO COMPLETO
-    # ==================================================
     def full_report(self):
-        """Roda todas as verificações e exibe um relatório."""
         print(" RELATÓRIO DE INVESTIGAÇÃO\n")
 
         checks = [
@@ -177,21 +141,17 @@ class Investigation:
                         f"  • ID: {r.get('id', r.get('id_a'))} | {r['name']} → {r['problem']}")
 
         if all_clean:
-            print("[OK] Nenhum problema encontrado.")
-
-    # ==================================================
-    # MENU DE INVESTIGAÇÃO
-    # ==================================================
+            print("Nenhum problema encontrado.")
 
     def menu_investigation(self):
         while True:
-            print("\n Modo Investigação")
-            print("1. Verificar receitas alteradas.")
-            print("2. Verificar duplicatas.")
-            print("3. Detectar conflitos de versão.")
-            print("4. Validar integridade dos campos.")
-            print("5. Relatório completo.")
-            print("0. Sair")
+            print("\n Investigação")
+            print("1. Receitas alteradas")
+            print("2. Duplicatas")
+            print("3. Conflitos de versão")
+            print("4. Integridade dos campos")
+            print("5. Relatório completo")
+            print("0. Voltar")
 
             op = input("Escolha uma opção: ")
 
@@ -227,8 +187,7 @@ class Investigation:
                     self.full_report()
 
                 case "0":
-                    print("Saindo do modo investigação...\n")
                     break
 
                 case _:
-                    print("[AVISO] Opção inválida.")
+                    print("Opção inválida.")

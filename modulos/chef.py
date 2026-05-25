@@ -1,17 +1,9 @@
-
 from modulos.livro_receitas import RecipeBook
 
 
-# ==================================================
-# 0/1 GULOSO (do seu colega, sem alteração)
-# ==================================================
 def recommend_menu(recipes, budget):
-    """Algoritmo guloso 0/1 — só pega receitas inteiras."""
-    ordered = sorted(
-        recipes,
-        key=lambda r: r.ratio_rating_cost,
-        reverse=True
-    )
+    """Mochila 0/1 gulosa — só inclui receitas inteiras, priorizando melhor razão avaliação/custo."""
+    ordered = sorted(recipes, key=lambda r: r.ratio_rating_cost, reverse=True)
     selected = []
     total_cost = 0
 
@@ -23,18 +15,9 @@ def recommend_menu(recipes, budget):
     return selected, total_cost
 
 
-# ==================================================
-# FRACIONÁRIA
-# ==================================================
 def fractional_knapsack(recipes, budget):
-    '''
-        Algoritmo guloso fracionário - coleta ate acabar o orçamentos
-    '''
-    ordered = sorted(
-        recipes,
-        key=lambda r: r.ratio_rating_cost,
-        reverse=True
-    )
+    """Mochila fracionária — pode incluir partes de uma receita para esgotar o orçamento."""
+    ordered = sorted(recipes, key=lambda r: r.ratio_rating_cost, reverse=True)
     selected = []
     total_cost = 0.0
 
@@ -56,11 +39,7 @@ def fractional_knapsack(recipes, budget):
     return selected, round(total_cost, 2)
 
 
-# ==================================================
-# COMPARAÇÃO
-# ==================================================
 def compare_algorithms(recipes, budget):
-    """Faz a comparacao entre a mochila 0/1 com a fracionaria e printa todos as receitas que foram escolhidas"""
     zero_one, cost_01 = recommend_menu(recipes, budget)
     fractional, cost_frac = fractional_knapsack(recipes, budget)
 
@@ -83,52 +62,39 @@ def compare_algorithms(recipes, budget):
             f"  • {r.name:<30} R${r.cost*f:>7.2f}  rating: {r.rating*f:>6.2f}  {frac_str}")
 
     diff = round(rating_frac - rating_01, 2)
-    print(f"\n[Diferença] Fracionária entrega {diff} pontos a mais de rating.")
+    print(f"\nA fracionária entrega {diff} pontos a mais de rating.")
 
 
-# ==================================================
-# CLASSE CHEF
-# ==================================================
 class Chef:
     def __init__(self, recipe_book: RecipeBook):
         self.book = recipe_book
 
     def _get_recipes(self, min_rating=0.0):
-        """Filtra receitas por rating mínimo."""
         return [
             r for r in self.book.all_recipes()
-            if r.cost > 0
-            and r.rating >= min_rating]
+            if r.cost > 0 and r.rating >= min_rating
+        ]
 
-    # ==================================================
-    # MENU DO CHEF (máximo rating)
-    # ==================================================
     def chef_menu(self, budget):
         recipes = self._get_recipes()
         if not recipes:
-            print("[AVISO] Nenhuma receita disponível.")
+            print("Nenhuma receita disponível.")
             return
         compare_algorithms(recipes, budget)
 
-    # ==================================================
-    # MENU ECONÔMICO (rating >= 60)
-    # ==================================================
     def economic_menu(self, budget):
         recipes = self._get_recipes(min_rating=60.0)
         if not recipes:
-            print("[AVISO] Nenhuma receita com rating >= 60.")
+            print("Nenhuma receita com rating >= 60.")
             return
         compare_algorithms(recipes, budget)
 
-    # ==================================================
-    # MENU INTERATIVO
-    # ==================================================
     def menu_chef(self):
         while True:
             print("\n Modo Chef")
-            print("1. Menu do Chef (máximo rating).")
-            print("2. Menu econômico (rating >= 60).")
-            print("0. Sair")
+            print("1. Menu do chef (máximo rating)")
+            print("2. Menu econômico (rating >= 60)")
+            print("0. Voltar")
 
             op = input("Escolha uma opção: ")
 
@@ -142,8 +108,7 @@ class Chef:
                     self.economic_menu(budget)
 
                 case "0":
-                    print("Saindo do modo Chef...\n")
                     break
 
                 case _:
-                    print("[AVISO] Opção inválida.")
+                    print("Opção inválida.")
