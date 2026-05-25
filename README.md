@@ -1,6 +1,7 @@
 # Desafio na Cozinha - Sistema Jacquin
 
 **Disciplina:** Algoritmos e Estruturas de Dados II
+
 **Equipe:** Gabriel Schuch e Lucas Stein
 
 ---
@@ -26,11 +27,11 @@ Trabalho-AED-II/
 │   └── chef.py                     # Modo Chef — Recomendação gulosa
 │
 ├── estruturas/
-│   ├── hash_table.py               # Tabela Hash implementada do zero
-│   └── trie.py                     # Árvore Trie implementada do zero
+│   ├── hash_table.py               
+│   └── trie.py                     
 │
 └── dataset/
-    └── recipes_raw_nosource_epi.json  # Dataset de receitas (Epicurious)
+    └── recipes_raw_nosource_epi.json  # Dataset de receitas 
 ```
 
 ---
