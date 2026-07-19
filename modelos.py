@@ -7,14 +7,13 @@ DISH_CLASS_BY_CATEGORY = {
     "Lunch": "principal",
     "Dinner": "principal",
     "Dessert": "sobremesa",
-    "Drink": "bebida",
+    "Drink": "bebida"
 }
 
-# Identificadores para preparos intermediários (Workshop de Produção)
 BASE_PREP_KEYWORDS = [
     "sauce", "dough", "stock", "broth", "base", "glaze",
     "batter", "marinade", "dressing", "filling", "crust",
-    "syrup", "compote", "custard",
+    "syrup", "compote", "custard"
 ]
 
 
@@ -28,15 +27,12 @@ class Recipe():
         self.rating = rating
         self.ratio_rating_cost = rating / cost if cost > 0 else 0
 
-        # Atributos estendidos (T2) - Geração determinística baseada no ID
         seed = sum(ord(c) for c in str(id))
-
         self.prep_time = 10 + (len(ingredients) * 3 + seed) % 80
         self.popularity = round((rating * 0.6 + (seed % 40) * 1.0) % 100, 1)
 
         RARE_HINTS = ["truffle", "caviar", "saffron", "foie gras", "wagyu",
                       "lobster", "morel", "wild mushroom", "vanilla bean"]
-
         self.rare_ingredients = [
             ing for ing in ingredients
             if any(hint in ing.lower() for hint in RARE_HINTS)
@@ -52,9 +48,7 @@ class Recipe():
             self.logistics_difficulty = "alta"
 
         self.team_required = 1 + (len(ingredients) // 8)
-
         self.dish_class = DISH_CLASS_BY_CATEGORY.get(category, "principal")
-
         name_lower = name.lower()
         self.is_base_prep = any(k in name_lower for k in BASE_PREP_KEYWORDS)
 

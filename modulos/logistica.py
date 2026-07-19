@@ -1,11 +1,3 @@
-"""
-Módulo 7 — Rede Logística de Distribuição
-
-Gerencia a malha de entrega através de duas representações em grafo:
-1) time_graph: Grafo não-dirigido ponderado pelo tempo de deslocamento.
-2) flow_graph: Grafo dirigido ponderado pela capacidade de tráfego de pedidos.
-"""
-
 import random
 from estruturas.graph import Graph
 from estruturas.algoritmos.dijkstra import dijkstra, shortest_path
@@ -143,8 +135,8 @@ class LogisticsNetwork:
 
     def menu_logistica(self):
         while True:
-            print("\n Modo Logística (Módulo 7)")
-            print(f"   rede: {self.stats()}")
+            print("\n Modo Logística")
+            print(f"rede: {self.stats()}\n")
             print("1. Consultar rota e tempo estimado entre dois pontos")
             print("2. Caminhos alternativos entre dois pontos")
             print("3. Infraestrutura mínima (AGM via Kruskal)")
@@ -154,61 +146,62 @@ class LogisticsNetwork:
             print("0. Voltar")
 
             op = input("Escolha uma opção: ")
+            match op:
+                case "1":
+                    o = input(f"Origem (ex: {self.kitchens[0]}): ").strip()
+                    d = input(f"Destino (ex: {self.regions[0]}): ").strip()
+                    path, dist = self.rota(o, d)
+                    if path is None:
+                        print("Rota não encontrada.")
+                    else:
+                        print(f"\nRota: {' -> '.join(path)}")
+                        print(f"Tempo estimado: {dist} min")
 
-            if op == "1":
-                o = input(f"Origem (ex: {self.kitchens[0]}): ").strip()
-                d = input(f"Destino (ex: {self.regions[0]}): ").strip()
-                path, dist = self.rota(o, d)
-                if path is None:
-                    print("Rota não encontrada.")
-                else:
-                    print(f"\nRota: {' -> '.join(path)}")
-                    print(f"Tempo estimado: {dist} min")
+                case "2":
+                    o = input("Origem: ").strip()
+                    d = input("Destino: ").strip()
+                    rotas = self.caminhos_alternativos(o, d)
+                    if not rotas:
+                        print("Nenhuma rota encontrada.")
+                    for i, (path, dist) in enumerate(rotas, 1):
+                        print(
+                            f"   Opção {i} ({dist} min): {' -> '.join(path)}")
 
-            elif op == "2":
-                o = input("Origem: ").strip()
-                d = input("Destino: ").strip()
-                rotas = self.caminhos_alternativos(o, d)
-                if not rotas:
-                    print("Nenhuma rota encontrada.")
-                for i, (path, dist) in enumerate(rotas, 1):
-                    print(f"   Opção {i} ({dist} min): {' -> '.join(path)}")
-
-            elif op == "3":
-                mst, custo = self.infraestrutura_minima()
-                print(
-                    f"\nInfraestrutura mínima ({len(mst)} conexões, custo total: {custo} min):")
-                for u, v, w in mst:
-                    print(f"  • {u} — {v} ({w} min)")
-
-            elif op == "4":
-                valor = self.capacidade_maxima_atendimento()
-                print(
-                    f"\nCapacidade máxima de atendimento simultâneo: {valor} pedidos/ciclo")
-
-            elif op == "5":
-                cortes = self.gargalos_operacionais()
-                if not cortes:
-                    print("\nNenhum gargalo identificado.")
-                else:
+                case "3":
+                    mst, custo = self.infraestrutura_minima()
                     print(
-                        f"\n{len(cortes)} gargalo(s) operacional(is) (Corte Mínimo):")
-                    for u, v, cap in cortes:
-                        print(f"  • {u} -> {v} (capacidade: {cap})")
+                        f"\nInfraestrutura mínima ({len(mst)} conexões, custo total: {custo} min):")
+                    for u, v, w in mst:
+                        print(f"  • {u} — {v} ({w} min)")
 
-            elif op == "6":
-                bolhas = self.bolhas_logisticas()
-                if not bolhas:
+                case "4":
+                    valor = self.capacidade_maxima_atendimento()
                     print(
-                        "\nNenhuma bolha logística identificada (rede sem ciclos de dependência conexos).")
-                else:
-                    print(
-                        f"\n{len(bolhas)} bolha(s) logística(s) encontrada(s) (Kosaraju):")
-                    for i, comp in enumerate(bolhas, 1):
-                        print(f"  Bolha {i}: {', '.join(comp)}")
+                        f"\nCapacidade máxima de atendimento simultâneo: {valor} pedidos/ciclo")
 
-            elif op == "0":
-                break
+                case "5":
+                    cortes = self.gargalos_operacionais()
+                    if not cortes:
+                        print("\nNenhum gargalo identificado.")
+                    else:
+                        print(
+                            f"\n{len(cortes)} gargalo(s) operacional(is) (Corte Mínimo):")
+                        for u, v, cap in cortes:
+                            print(f"  • {u} -> {v} (capacidade: {cap})")
 
-            else:
-                print("Opção inválida.")
+                case "6":
+                    bolhas = self.bolhas_logisticas()
+                    if not bolhas:
+                        print(
+                            "\nNenhuma bolha logística identificada (rede sem ciclos de dependência conexos).")
+                    else:
+                        print(
+                            f"\n{len(bolhas)} bolha(s) logística(s) encontrada(s) (Kosaraju):")
+                        for i, comp in enumerate(bolhas, 1):
+                            print(f"  Bolha {i}: {', '.join(comp)}")
+
+                case "0":
+                    break
+
+                case _:
+                    print("Opção inválida.")

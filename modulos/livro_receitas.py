@@ -5,8 +5,6 @@ from modelos import Recipe
 from random import randint, choice
 import json
 
-print("livro_receitas carregado")
-
 CATEGORIES = [
     "Breakfast", "Lunch", "Dinner", "Dessert",
     "Appetizer", "Soup", "Salad", "Snack", "Drink"

@@ -1,7 +1,7 @@
 from estruturas.graph import Graph
 
 
-def kosaraju(grafo):
+def kosaraju(grafo: Graph):
     visited = set()
     stack = []
 

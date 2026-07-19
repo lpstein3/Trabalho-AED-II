@@ -1,13 +1,3 @@
-"""
-Módulo 5 — Oficina de Produção
-
-Modela as dependências entre preparações como um grafo dirigido. As 
-dependências são geradas automaticamente a partir do dataset real: 
-identificamos receitas-base (ver BASE_PREP_KEYWORDS em modelos.py) e 
-ligamos uma aresta base -> receita sempre que o nome da base aparece 
-mencionado nos ingredientes da receita dependente.
-"""
-
 import re
 from estruturas.graph import Graph
 from estruturas.algoritmos.topologico import topological_sort
@@ -15,12 +5,6 @@ from estruturas.algoritmos.buscas import ancestors_of
 
 
 def _simplify_name(name):
-    """
-    Reduz o nome de uma receita-base à sua forma mais 'nua' para casar
-    com menções dentro de listas de ingredientes.
-    Não corta em " and "/" or ", pois esses conectivos costumam fazer parte
-    do próprio nome do prato.
-    """
     name = name.lower()
     name = re.split(r" with |,", name)[0]
     name = re.sub(r"[^a-z ]", "", name)
@@ -109,7 +93,7 @@ class ProductionWorkshop:
 
     def menu_producao(self):
         while True:
-            print("\n Oficina de Produção (Módulo 5)")
+            print("\n Oficina de Produção")
             stats = self.stats()
             print(f"   grafo: {stats['vertices']} vértices | {stats['arestas']} arestas | "
                   f"{stats['receitas_base']} receitas-base identificadas")
@@ -122,51 +106,54 @@ class ProductionWorkshop:
 
             op = input("Escolha uma opção: ")
 
-            if op == "1":
-                order, cycle = self.sequencia_producao()
-                if order is not None:
-                    print(f"\nSequência válida ({len(order)} etapas):")
+            match op:
+                case "1":
+                    order, cycle = self.sequencia_producao()
+                    if order is not None:
+                        print(f"\nSequência válida ({len(order)} etapas):")
                     for i, rid in enumerate(order, 1):
                         print(f"  {i}. {self._nome(rid)}")
-                else:
+                    else:
+                        print(
+                            "\nNão existe sequência válida — dependência circular encontrada:")
+                        print("  " + " -> ".join(self._nome(rid)
+                              for rid in cycle))
+
+                case "2":
+                    cycle = self.existe_erro_dependencia()
+                    if cycle:
+                        print("\nSim! Ciclo de dependência detectado:")
+                        print("  " + " -> ".join(self._nome(rid)
+                              for rid in cycle))
+                    else:
+                        print(
+                            "\nNão há inconsistências. Todas as dependências formam um DAG válido.")
+
+                case "3":
+                    rid = input("ID da receita: ").strip()
+                    result = self.preparos_antes_de(rid)
+                    if result is None:
+                        print("Receita não encontrada no grafo de dependências.")
+                    elif not result:
+                        print(
+                            "Nenhum preparo intermediário depende disso — pode ser produzida diretamente.")
+                    else:
+                        print(
+                            f"\nPreparos que precisam ser concluídos antes de '{self._nome(rid)}':")
+                        for pid in result:
+                            print(f"  • {self._nome(pid)}")
+
+                case "4":
+                    ok = self.inject_demo_inconsistency()
                     print(
-                        "\nNão existe sequência válida — dependência circular encontrada:")
-                    print("  " + " -> ".join(self._nome(rid) for rid in cycle))
+                        "Inconsistência injetada." if ok else "Grafo sem arestas suficientes.")
 
-            elif op == "2":
-                cycle = self.existe_erro_dependencia()
-                if cycle:
-                    print("\nSim! Ciclo de dependência detectado:")
-                    print("  " + " -> ".join(self._nome(rid) for rid in cycle))
-                else:
-                    print(
-                        "\nNão há inconsistências. Todas as dependências formam um DAG válido.")
+                case "5":
+                    self.remove_demo_inconsistency()
+                    print("Grafo reconstruído sem inconsistências.")
 
-            elif op == "3":
-                rid = input("ID da receita: ").strip()
-                result = self.preparos_antes_de(rid)
-                if result is None:
-                    print("Receita não encontrada no grafo de dependências.")
-                elif not result:
-                    print(
-                        "Nenhum preparo intermediário depende disso — pode ser produzida diretamente.")
-                else:
-                    print(
-                        f"\nPreparos que precisam ser concluídos antes de '{self._nome(rid)}':")
-                    for pid in result:
-                        print(f"  • {self._nome(pid)}")
+                case "0":
+                    break
 
-            elif op == "4":
-                ok = self.inject_demo_inconsistency()
-                print(
-                    "Inconsistência injetada." if ok else "Grafo sem arestas suficientes.")
-
-            elif op == "5":
-                self.remove_demo_inconsistency()
-                print("Grafo reconstruído sem inconsistências.")
-
-            elif op == "0":
-                break
-
-            else:
-                print("Opção inválida.")
+                case _:
+                    print("Opção inválida.")
